@@ -12,7 +12,7 @@ import com.avensys.rts.workexperienceservice.interceptor.AuditInterceptor;
 import com.avensys.rts.workexperienceservice.interceptor.AuthInterceptor;
 
 /**
- * @author Koh He Xiang
+ * @author Kotaiah
  * This class is used to configure the application.
  */
 @Configuration
