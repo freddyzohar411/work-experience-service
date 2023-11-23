@@ -20,6 +20,6 @@ public class WorkExperienceRequestDTO {
 	private Long createdBy;
 	private Long updatedBy;
 
-//	//Added 22112023
-//	MultipartFile[] multiFiles;
+	//Added 22112023
+	MultipartFile[] multiFiles;
 }

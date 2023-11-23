@@ -1,9 +1,13 @@
 package com.avensys.rts.workexperienceservice.service;
 
+import java.io.File;
 import java.util.List;
 
 import java.util.Optional;
 
+import com.avensys.rts.workexperienceservice.APIClient.DocumentAPIClient;
+import com.avensys.rts.workexperienceservice.payloadnewrequest.DocumentRequestDTO;
+import com.avensys.rts.workexperienceservice.payloadnewresponse.DocumentResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +27,7 @@ import com.avensys.rts.workexperienceservice.repository.UserRepository;
 import com.avensys.rts.workexperienceservice.util.MappingUtil;
 
 import jakarta.transaction.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class WorkExperienceServiceImpl implements WorkExperienceService {
@@ -31,6 +36,9 @@ public class WorkExperienceServiceImpl implements WorkExperienceService {
 
 	private final Logger log = LoggerFactory.getLogger(WorkExperienceServiceImpl.class);
 	private final WorkExperienceRepository workExperienceRepository;
+
+	@Autowired
+	private DocumentAPIClient documentAPIClient;
 
 	@Autowired
 	private UserAPIClient userAPIClient;
@@ -51,9 +59,19 @@ public class WorkExperienceServiceImpl implements WorkExperienceService {
 	@Override
 	@Transactional
 	public WorkExperienceResponseDTO createWorkExperience(WorkExperienceRequestDTO workExperienceRequestDTO) {
+		for (MultipartFile file : workExperienceRequestDTO.getMultiFiles()) {
+			System.out.println("File: " + file.getOriginalFilename());
+		}
 		log.info("Creating Work Experience: service");
 		System.out.println("Work Experience: " + workExperienceRequestDTO);
 		WorkExperienceEntity savedWorkExperienceEntity = workExperienceRequestDTOToWorkExperienceEntity(workExperienceRequestDTO);
+
+		// Save documents to document microservice
+		if (workExperienceRequestDTO.getMultiFiles() != null) {
+			for (MultipartFile file : workExperienceRequestDTO.getMultiFiles()) {
+				addDocuments(file, savedWorkExperienceEntity.getId(), workExperienceRequestDTO.getEntityType());
+			}
+		}
 
 		// Save form data to form submission microservice
 		FormSubmissionsRequestDTO formSubmissionsRequestDTO = new FormSubmissionsRequestDTO();
@@ -72,6 +90,8 @@ public class WorkExperienceServiceImpl implements WorkExperienceService {
 		return workExperienceEntityToWorkExperienceResponseDTO(savedWorkExperienceEntity);
 	}
 
+
+
 	@Override
 	public WorkExperienceResponseDTO getWorkExperienceById(Integer id) {
 		WorkExperienceEntity workExperienceFound = workExperienceRepository.findById(id)
@@ -81,11 +101,19 @@ public class WorkExperienceServiceImpl implements WorkExperienceService {
 
 	@Override
 	@Transactional
-	public WorkExperienceResponseDTO updateWorkExperience(Integer id, WorkExperienceRequestDTO workExperienceRequestDTO) {
+	public WorkExperienceResponseDTO updateWorkExperience(Integer id,
+			WorkExperienceRequestDTO workExperienceRequestDTO) {
 		WorkExperienceEntity workExperienceFound = workExperienceRepository.findById(id)
 				.orElseThrow(() -> new RuntimeException("Work Experience is not found"));
-		WorkExperienceEntity updatedWorkExperienceEntity = updateWorkExperienceRequestDTOToWorkExperienceEntity(workExperienceFound,
-				workExperienceRequestDTO);
+		WorkExperienceEntity updatedWorkExperienceEntity = updateWorkExperienceRequestDTOToWorkExperienceEntity(
+				workExperienceFound, workExperienceRequestDTO);
+
+		// Save documents to document microservice
+		if (workExperienceRequestDTO.getMultiFiles() != null) {
+			for (MultipartFile file : workExperienceRequestDTO.getMultiFiles()) {
+				addDocuments(file, updatedWorkExperienceEntity.getId(), workExperienceRequestDTO.getEntityType());
+			}
+		}
 
 		// Update form submission
 		FormSubmissionsRequestDTO formSubmissionsRequestDTO = new FormSubmissionsRequestDTO();
@@ -113,9 +141,10 @@ public class WorkExperienceServiceImpl implements WorkExperienceService {
 	}
 
 	@Override
-	public List<WorkExperienceResponseDTO> getWorkExperienceByEntityTypeAndEntityId(String entityType, Integer entityId) {
-		List<WorkExperienceEntity> workExperienceEntityList = workExperienceRepository.findByEntityTypeAndEntityId(entityType,
-				entityId);
+	public List<WorkExperienceResponseDTO> getWorkExperienceByEntityTypeAndEntityId(String entityType,
+			Integer entityId) {
+		List<WorkExperienceEntity> workExperienceEntityList = workExperienceRepository
+				.findByEntityTypeAndEntityId(entityType, entityId);
 		List<WorkExperienceResponseDTO> workExperienceResponseDTOList = workExperienceEntityList.stream()
 				.map(this::workExperienceEntityToWorkExperienceResponseDTO).toList();
 		return workExperienceResponseDTOList;
@@ -124,8 +153,8 @@ public class WorkExperienceServiceImpl implements WorkExperienceService {
 	@Override
 	@Transactional
 	public void deleteWorkExperienceByEntityTypeAndEntityId(String entityType, Integer entityId) {
-		List<WorkExperienceEntity> workExperienceEntityList = workExperienceRepository.findByEntityTypeAndEntityId(entityType,
-				entityId);
+		List<WorkExperienceEntity> workExperienceEntityList = workExperienceRepository
+				.findByEntityTypeAndEntityId(entityType, entityId);
 		if (!workExperienceEntityList.isEmpty()) {
 			// Delete each Work Experience form submission before deleting
 			workExperienceEntityList.forEach(workExperienceEntity -> {
@@ -135,7 +164,8 @@ public class WorkExperienceServiceImpl implements WorkExperienceService {
 		}
 	}
 
-	private WorkExperienceResponseDTO workExperienceEntityToWorkExperienceResponseDTO(WorkExperienceEntity workExperienceEntity) {
+	private WorkExperienceResponseDTO workExperienceEntityToWorkExperienceResponseDTO(
+			WorkExperienceEntity workExperienceEntity) {
 		WorkExperienceResponseDTO workExperienceResponseDTO = new WorkExperienceResponseDTO();
 		workExperienceResponseDTO.setId(workExperienceEntity.getId());
 		workExperienceResponseDTO.setCreatedAt(workExperienceEntity.getCreatedAt());
@@ -169,8 +199,8 @@ public class WorkExperienceServiceImpl implements WorkExperienceService {
 		return workExperienceResponseDTO;
 	}
 
-	private WorkExperienceEntity updateWorkExperienceRequestDTOToWorkExperienceEntity(WorkExperienceEntity workExperienceEntity,
-			WorkExperienceRequestDTO workExperienceRequestDTO) {
+	private WorkExperienceEntity updateWorkExperienceRequestDTOToWorkExperienceEntity(
+			WorkExperienceEntity workExperienceEntity, WorkExperienceRequestDTO workExperienceRequestDTO) {
 		workExperienceEntity.setEntityType(workExperienceRequestDTO.getEntityType());
 		workExperienceEntity.setEntityId(workExperienceRequestDTO.getEntityId());
 		workExperienceEntity.setUpdatedBy(workExperienceRequestDTO.getUpdatedBy());
@@ -178,7 +208,8 @@ public class WorkExperienceServiceImpl implements WorkExperienceService {
 		return workExperienceRepository.save(workExperienceEntity);
 	}
 
-	private WorkExperienceEntity workExperienceRequestDTOToWorkExperienceEntity(WorkExperienceRequestDTO workExperienceRequestDTO) {
+	private WorkExperienceEntity workExperienceRequestDTOToWorkExperienceEntity(
+			WorkExperienceRequestDTO workExperienceRequestDTO) {
 		WorkExperienceEntity workExperienceEntity = new WorkExperienceEntity();
 		workExperienceEntity.setEntityType(workExperienceRequestDTO.getEntityType());
 		workExperienceEntity.setEntityId(workExperienceRequestDTO.getEntityId());
@@ -186,6 +217,17 @@ public class WorkExperienceServiceImpl implements WorkExperienceService {
 		workExperienceEntity.setUpdatedBy(workExperienceRequestDTO.getUpdatedBy());
 		workExperienceEntity.setFormId(workExperienceRequestDTO.getFormId());
 		return workExperienceRepository.save(workExperienceEntity);
+	}
+
+	private void addDocuments(MultipartFile file, Integer entityId, String entityType) {
+		DocumentRequestDTO documentRequestDTO = new DocumentRequestDTO();
+		// Save document and tag to account entity
+		documentRequestDTO.setEntityId(entityId);
+		documentRequestDTO.setEntityType(entityType);
+		documentRequestDTO.setTitle(file.getOriginalFilename());
+		documentRequestDTO.setFile(file);
+		HttpResponse documentResponse = documentAPIClient.createDocument(documentRequestDTO);
+		DocumentResponseDTO documentData = MappingUtil.mapClientBodyToClass(documentResponse.getData(), DocumentResponseDTO.class);
 	}
 
 }
