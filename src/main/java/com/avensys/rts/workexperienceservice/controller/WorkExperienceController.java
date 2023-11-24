@@ -8,15 +8,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.avensys.rts.workexperienceservice.constant.MessageConstants;
 import com.avensys.rts.workexperienceservice.payloadnewrequest.WorkExperienceRequestDTO;
@@ -43,12 +35,13 @@ public class WorkExperienceController {
 	}
 
 	@PostMapping("/work-experience")
-	public ResponseEntity<Object> createWorkExperience(@Valid @RequestBody WorkExperienceRequestDTO workExperienceRequestDTO,
+	public ResponseEntity<Object> createWorkExperience( @ModelAttribute WorkExperienceRequestDTO workExperienceRequestDTO,
 			@RequestHeader(name = "Authorization") String token) {
 		log.info("Create a workExperience : Controller ");
 		Long userId = jwtUtil.getUserId(token);
 		workExperienceRequestDTO.setCreatedBy(userId);
 		workExperienceRequestDTO.setUpdatedBy(userId);
+		log.info("Create a workExperience 2: Controller ");
 		WorkExperienceResponseDTO createdWorkExperience = workExperienceService.createWorkExperience(workExperienceRequestDTO);
 		return ResponseUtil.generateSuccessResponse(createdWorkExperience, HttpStatus.CREATED,
 				messageSource.getMessage(MessageConstants.MESSAGE_CREATED, null, LocaleContextHolder.getLocale()));
@@ -73,7 +66,7 @@ public class WorkExperienceController {
 
 	@PutMapping("/work-experience/{id}")
 	public ResponseEntity<Object> updateWorkExperience(@PathVariable Integer id,
-			@Valid @RequestBody WorkExperienceRequestDTO workExperienceRequestDTO,
+			@Valid @ModelAttribute WorkExperienceRequestDTO workExperienceRequestDTO,
 			@RequestHeader(name = "Authorization") String token) {
 		log.info("Update workExperience : Controller ");
 		Long userId = jwtUtil.getUserId(token);

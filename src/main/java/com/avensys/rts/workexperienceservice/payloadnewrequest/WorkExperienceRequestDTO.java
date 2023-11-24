@@ -3,6 +3,7 @@ package com.avensys.rts.workexperienceservice.payloadnewrequest;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @NoArgsConstructor
@@ -18,4 +19,7 @@ public class WorkExperienceRequestDTO {
 
 	private Long createdBy;
 	private Long updatedBy;
+
+	//Added 22112023
+	MultipartFile[] multiFiles;
 }
