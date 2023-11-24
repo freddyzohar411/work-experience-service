@@ -35,12 +35,13 @@ public class WorkExperienceController {
 	}
 
 	@PostMapping("/work-experience")
-	public ResponseEntity<Object> createWorkExperience(@Valid @ModelAttribute WorkExperienceRequestDTO workExperienceRequestDTO,
+	public ResponseEntity<Object> createWorkExperience( @ModelAttribute WorkExperienceRequestDTO workExperienceRequestDTO,
 			@RequestHeader(name = "Authorization") String token) {
 		log.info("Create a workExperience : Controller ");
 		Long userId = jwtUtil.getUserId(token);
 		workExperienceRequestDTO.setCreatedBy(userId);
 		workExperienceRequestDTO.setUpdatedBy(userId);
+		log.info("Create a workExperience 2: Controller ");
 		WorkExperienceResponseDTO createdWorkExperience = workExperienceService.createWorkExperience(workExperienceRequestDTO);
 		return ResponseUtil.generateSuccessResponse(createdWorkExperience, HttpStatus.CREATED,
 				messageSource.getMessage(MessageConstants.MESSAGE_CREATED, null, LocaleContextHolder.getLocale()));
