@@ -7,7 +7,7 @@ import com.avensys.rts.workexperienceservice.customresponse.HttpResponse;
 import com.avensys.rts.workexperienceservice.interceptor.JwtTokenInterceptor;
 import com.avensys.rts.workexperienceservice.payloadnewrequest.FormSubmissionsRequestDTO;
 
-@FeignClient(name = "form-service", url = "http://localhost:9400", configuration = JwtTokenInterceptor.class)
+@FeignClient(name = "form-service", url = "${api.form-submission.url}", configuration = JwtTokenInterceptor.class)
 public interface FormSubmissionAPIClient {
     @PostMapping("/form-submissions")
     HttpResponse addFormSubmission(@RequestBody FormSubmissionsRequestDTO formSubmissionsRequestDTO);
