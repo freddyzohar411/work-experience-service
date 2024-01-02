@@ -7,18 +7,18 @@ import com.avensys.rts.workexperienceservice.customresponse.HttpResponse;
 import com.avensys.rts.workexperienceservice.interceptor.JwtTokenInterceptor;
 import com.avensys.rts.workexperienceservice.payloadnewrequest.FormSubmissionsRequestDTO;
 
-@FeignClient(name = "form-service", url = "http://localhost:9400", configuration = JwtTokenInterceptor.class)
+@FeignClient(name = "form-service", url = "${api.form-submission.url}", configuration = JwtTokenInterceptor.class)
 public interface FormSubmissionAPIClient {
-    @PostMapping("/form-submissions")
+    @PostMapping("")
     HttpResponse addFormSubmission(@RequestBody FormSubmissionsRequestDTO formSubmissionsRequestDTO);
 
-    @GetMapping("/form-submissions/{formSubmissionId}")
+    @GetMapping("/{formSubmissionId}")
     HttpResponse getFormSubmission(@PathVariable int formSubmissionId);
 
-    @PutMapping("/form-submissions/{formSubmissionId}")
+    @PutMapping("/{formSubmissionId}")
     HttpResponse updateFormSubmission(@PathVariable int formSubmissionId, @RequestBody FormSubmissionsRequestDTO formSubmissionsRequestDTO);
 
-    @DeleteMapping("/form-submissions/{formSubmissionId}")
+    @DeleteMapping("/{formSubmissionId}")
     HttpResponse deleteFormSubmission(@PathVariable int formSubmissionId);
 
 }

@@ -59,20 +59,13 @@ public class WorkExperienceServiceImpl implements WorkExperienceService {
 	@Override
 	@Transactional
 	public WorkExperienceResponseDTO createWorkExperience(WorkExperienceRequestDTO workExperienceRequestDTO) {
-		log.info("Create a workExperience 2.1: Controller ");
-//		for (MultipartFile file : workExperienceRequestDTO.getMultiFiles()) {
-//			System.out.println("File: " + file.getOriginalFilename());
-//		}
-		log.info("Create a workExperience 2.2: Controller ");
 		WorkExperienceEntity savedWorkExperienceEntity = workExperienceRequestDTOToWorkExperienceEntity(workExperienceRequestDTO);
-		log.info("Create a workExperience 3: Controller ");
 		// Save documents to document microservice
 		if (workExperienceRequestDTO.getMultiFiles() != null) {
 			for (MultipartFile file : workExperienceRequestDTO.getMultiFiles()) {
 				addDocuments(file, savedWorkExperienceEntity.getId(), workExperienceRequestDTO.getEntityType());
 			}
 		}
-		log.info("Create a workExperience 4: Controller ");
 		// Save form data to form submission microservice
 		FormSubmissionsRequestDTO formSubmissionsRequestDTO = new FormSubmissionsRequestDTO();
 		formSubmissionsRequestDTO.setUserId(workExperienceRequestDTO.getCreatedBy());
@@ -86,8 +79,6 @@ public class WorkExperienceServiceImpl implements WorkExperienceService {
 				.mapClientBodyToClass(formSubmissionResponse.getData(), FormSubmissionsResponseDTO.class);
 
 		savedWorkExperienceEntity.setFormSubmissionId(formSubmissionData.getId());
-		log.info("Create a workExperience 5: Controller ");
-
 		return workExperienceEntityToWorkExperienceResponseDTO(savedWorkExperienceEntity);
 	}
 
