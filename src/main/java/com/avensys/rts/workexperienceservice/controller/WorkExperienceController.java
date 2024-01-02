@@ -21,6 +21,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
+@RequestMapping("/api/work-experience")
 public class WorkExperienceController {
 	private final Logger log = LoggerFactory.getLogger(WorkExperienceController.class);
 	private final WorkExperienceServiceImpl workExperienceService;
@@ -34,7 +35,7 @@ public class WorkExperienceController {
 		this.messageSource = messageSource;
 	}
 
-	@PostMapping("/work-experience")
+	@PostMapping("")
 	public ResponseEntity<Object> createWorkExperience( @ModelAttribute WorkExperienceRequestDTO workExperienceRequestDTO,
 			@RequestHeader(name = "Authorization") String token) {
 		log.info("Create a workExperience : Controller ");
@@ -47,7 +48,7 @@ public class WorkExperienceController {
 				messageSource.getMessage(MessageConstants.MESSAGE_CREATED, null, LocaleContextHolder.getLocale()));
 	}
 
-	@GetMapping("/work-experience/entity/{entityType}/{entityId}")
+	@GetMapping("/entity/{entityType}/{entityId}")
 	public ResponseEntity<Object> getWorkExperienceByEntityTypeAndEntityId(@PathVariable String entityType,
 			@PathVariable Integer entityId) {
 		log.info("Get workExperience by entity type and entity id : Controller ");
@@ -56,7 +57,7 @@ public class WorkExperienceController {
 				messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
 	}
 
-	@DeleteMapping("/work-experience/{id}")
+	@DeleteMapping("/{id}")
 	public ResponseEntity<Object> deleteWorkExperience(@PathVariable Integer id) {
 		log.info("Delete workExperience : Controller ");
 		workExperienceService.deleteWorkExperience(id);
@@ -64,7 +65,7 @@ public class WorkExperienceController {
 				messageSource.getMessage(MessageConstants.MESSAGE_SUCCESS, null, LocaleContextHolder.getLocale()));
 	}
 
-	@PutMapping("/work-experience/{id}")
+	@PutMapping("/{id}")
 	public ResponseEntity<Object> updateWorkExperience(@PathVariable Integer id,
 			@Valid @ModelAttribute WorkExperienceRequestDTO workExperienceRequestDTO,
 			@RequestHeader(name = "Authorization") String token) {
@@ -83,7 +84,7 @@ public class WorkExperienceController {
 	 * @param entityId
 	 * @return
 	 */
-	@DeleteMapping("/work-experience/entity/{entityType}/{entityId}")
+	@DeleteMapping("/entity/{entityType}/{entityId}")
 	public ResponseEntity<Object> deleteWorkExperienceByEntityTypeAndEntityId(@PathVariable String entityType,
 			@PathVariable Integer entityId) {
 		log.info("Delete workExperience by entity type and entity id : Controller ");
