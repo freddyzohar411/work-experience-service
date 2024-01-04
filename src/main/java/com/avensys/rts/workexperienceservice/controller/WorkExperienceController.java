@@ -35,7 +35,7 @@ public class WorkExperienceController {
 		this.messageSource = messageSource;
 	}
 
-	@PostMapping("")
+	@PostMapping("/add")
 	public ResponseEntity<Object> createWorkExperience( @ModelAttribute WorkExperienceRequestDTO workExperienceRequestDTO,
 			@RequestHeader(name = "Authorization") String token) {
 		log.info("Create a workExperience : Controller ");
