@@ -1,12 +1,16 @@
 package com.avensys.rts.workexperienceservice.service;
 
 import java.util.List;
+
+import com.avensys.rts.workexperienceservice.payloadnewrequest.WorkExperienceListRequestDTO;
 import com.avensys.rts.workexperienceservice.payloadnewrequest.WorkExperienceRequestDTO;
 import com.avensys.rts.workexperienceservice.payloadnewresponse.WorkExperienceResponseDTO;
 
 public interface WorkExperienceService {
 
     WorkExperienceResponseDTO createWorkExperience(WorkExperienceRequestDTO contactNewRequestDTO);
+
+    void createWorkExperienceList(WorkExperienceListRequestDTO workExperienceListRequestDTO);
 
     WorkExperienceResponseDTO getWorkExperienceById(Integer id);
 

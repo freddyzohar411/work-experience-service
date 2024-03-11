@@ -1,5 +1,6 @@
 package com.avensys.rts.workexperienceservice.controller;
 
+import com.avensys.rts.workexperienceservice.payloadnewrequest.WorkExperienceListRequestDTO;
 import org.slf4j.Logger;
 
 import org.slf4j.LoggerFactory;
@@ -45,6 +46,21 @@ public class WorkExperienceController {
 		log.info("Create a workExperience 2: Controller ");
 		WorkExperienceResponseDTO createdWorkExperience = workExperienceService.createWorkExperience(workExperienceRequestDTO);
 		return ResponseUtil.generateSuccessResponse(createdWorkExperience, HttpStatus.CREATED,
+				messageSource.getMessage(MessageConstants.MESSAGE_CREATED, null, LocaleContextHolder.getLocale()));
+	}
+
+	@PostMapping("/add/list")
+	public ResponseEntity<Object> createWorkExperienceList(@Valid @ModelAttribute WorkExperienceListRequestDTO workExperienceListRequestDTO,
+			@RequestHeader
+			(name = "Authorization") String token) {
+		log.info("Create a workExperience : Controller ");
+		Long userId = jwtUtil.getUserId(token);
+		for (WorkExperienceRequestDTO workExperienceRequestDTO : workExperienceListRequestDTO.getWorkExperienceList()) {
+			workExperienceRequestDTO.setCreatedBy(userId);
+			workExperienceRequestDTO.setUpdatedBy(userId);
+		}
+		workExperienceService.createWorkExperienceList(workExperienceListRequestDTO);
+		return ResponseUtil.generateSuccessResponse(null, HttpStatus.CREATED,
 				messageSource.getMessage(MessageConstants.MESSAGE_CREATED, null, LocaleContextHolder.getLocale()));
 	}
 
