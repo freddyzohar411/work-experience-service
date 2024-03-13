@@ -4,9 +4,11 @@ import java.io.File;
 import java.util.List;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.avensys.rts.workexperienceservice.APIClient.DocumentAPIClient;
 import com.avensys.rts.workexperienceservice.payloadnewrequest.DocumentRequestDTO;
+import com.avensys.rts.workexperienceservice.payloadnewrequest.WorkExperienceListRequestDTO;
 import com.avensys.rts.workexperienceservice.payloadnewresponse.DocumentResponseDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +59,7 @@ public class WorkExperienceServiceImpl implements WorkExperienceService {
 	}
 
 	@Override
-	@Transactional
+//	@Transactional
 	public WorkExperienceResponseDTO createWorkExperience(WorkExperienceRequestDTO workExperienceRequestDTO) {
 		WorkExperienceEntity savedWorkExperienceEntity = workExperienceRequestDTOToWorkExperienceEntity(workExperienceRequestDTO);
 		// Save documents to document microservice
@@ -79,10 +81,14 @@ public class WorkExperienceServiceImpl implements WorkExperienceService {
 				.mapClientBodyToClass(formSubmissionResponse.getData(), FormSubmissionsResponseDTO.class);
 
 		savedWorkExperienceEntity.setFormSubmissionId(formSubmissionData.getId());
+		workExperienceRepository.save(savedWorkExperienceEntity);
 		return workExperienceEntityToWorkExperienceResponseDTO(savedWorkExperienceEntity);
 	}
 
-
+	@Override
+	public void createWorkExperienceList(WorkExperienceListRequestDTO workExperienceListRequestDTO) {
+		workExperienceListRequestDTO.getWorkExperienceList().forEach(this::createWorkExperience);
+	}
 
 	@Override
 	public WorkExperienceResponseDTO getWorkExperienceById(Integer id) {
