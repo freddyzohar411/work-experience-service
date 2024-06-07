@@ -21,4 +21,5 @@ public class DocumentResponseDTO {
 	private Integer entityId;
 	private String entityType;
 	private String documentKey;
+
 }
