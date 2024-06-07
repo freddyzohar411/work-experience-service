@@ -45,6 +45,8 @@ public class AuthInterceptor implements HandlerInterceptor {
 		// Get the token string
 		String token = authorizationHeader.substring(7);
 
+		System.out.println("Token: " + token);
+
 		try {
 			// Validate JWT with the public key from keycloak
 			jwtUtil.validateToken(token);

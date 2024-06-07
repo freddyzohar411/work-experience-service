@@ -43,7 +43,6 @@ public class WorkExperienceController {
 		Long userId = jwtUtil.getUserId(token);
 		workExperienceRequestDTO.setCreatedBy(userId);
 		workExperienceRequestDTO.setUpdatedBy(userId);
-		log.info("Create a workExperience 2: Controller ");
 		WorkExperienceResponseDTO createdWorkExperience = workExperienceService.createWorkExperience(workExperienceRequestDTO);
 		return ResponseUtil.generateSuccessResponse(createdWorkExperience, HttpStatus.CREATED,
 				messageSource.getMessage(MessageConstants.MESSAGE_CREATED, null, LocaleContextHolder.getLocale()));
